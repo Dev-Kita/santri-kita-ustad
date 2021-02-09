@@ -2,11 +2,15 @@ import * as React from 'react';
 import {Text, View, TouchableOpacity} from 'react-native';
 
 export default Item = (Props) => {
+  let canOpen = Props.canOpen;
+  if(Props.canOpen === undefined) canOpen = true;
+
   const [isOpen, setIsOpen] = React.useState(false);
+
   return (
     <TouchableOpacity
       onPress={() => {
-        setIsOpen(!isOpen);
+        if (canOpen) setIsOpen(!isOpen);
       }}
       style={{backgroundColor: '#FAFAFA', borderRadius: 7, ...Props.style}}>
       <View

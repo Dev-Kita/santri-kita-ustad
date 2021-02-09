@@ -32,7 +32,7 @@ const ListHeaderUstad = () => {
 
 export default HomeTab = ({navigation}) => {
   const renderItem = ({item}) => (
-    <Item title={item.title} date={item.date} style={{marginTop: 7}} />
+    <Item title={item.title} date={item.date} style={{marginTop: 7}} canOpen={false}/>
   );
   return (
     <View
