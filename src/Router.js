@@ -12,6 +12,7 @@ import PrestasiScreen from './pages/PrestasiScreen';
 import PrestasiFormScreen from './pages/PrestasiFormScreen';
 import PelanggaranScreen from './pages/PelanggaranScreen';
 import PelanggaranFormScreen from './pages/PelanggaranFormScreen';
+import SplashScreen from './pages/SplashScreen';
 
 /**
  *
@@ -24,7 +25,12 @@ import PelanggaranFormScreen from './pages/PelanggaranFormScreen';
 const MainStack = createStackNavigator();
 const MainScreen = () => {
   return (
-    <MainStack.Navigator initialRouteName="ScannerScreen" headerMode="screen">
+    <MainStack.Navigator initialRouteName="SplashScreen" headerMode="screen">
+      <MainStack.Screen
+        name="SplashScreen"
+        options={{headerShown: false}}
+        component={SplashScreen}
+      />
       <MainStack.Screen
         name="MainScreen"
         options={{headerShown: true, header: (Props) => <MyHeader />}}
@@ -78,6 +84,7 @@ const MainScreen = () => {
     </MainStack.Navigator>
   );
 };
+
 
 export default Router = () => {
   return (
