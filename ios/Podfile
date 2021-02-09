@@ -8,6 +8,8 @@ target 'santrikitaustad' do
 
   use_react_native!(:path => config["reactNativePath"])
 
+  pod 'RNCMaskedView', :path => '../node_modules/@react-native-masked-view/masked-view'
+
   target 'santrikitaustadTests' do
     inherit! :complete
     # Pods for testing
