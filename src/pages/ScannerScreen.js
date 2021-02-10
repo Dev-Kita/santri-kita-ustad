@@ -1,6 +1,13 @@
 import * as React from 'react';
-import {Text, View, TouchableOpacity, Dimensions} from 'react-native';
-import {InputText} from '../components/Input';
+
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
+import {InputText, MyButton} from '../components/Input';
 
 import {Svg, Defs, Rect, Mask} from 'react-native-svg';
 
@@ -66,27 +73,6 @@ export default ScannerScreen = (Props) => {
   const {route, navigation} = Props;
   let hasDataForm = route.params === undefined ? false : true;
 
-  React.useEffect(() => {
-    // setTimeout(() => {
-    //   // simulasi jika terscan
-    //   if (hasDataForm) {
-    //     // console.warn(route.params);
-    //     navigation.navigate('SetoranFormScreen', {
-    //       id: Math.random(),
-    //       name: 'rizki',
-    //       class: '6 SD',
-    //       asrama: 'putri 1',
-    //       ...route.params,
-    //     });
-    //   } else {
-    //     navigation.navigate('MenuScreen', {
-    //       name: 'rizki',
-    //       class: '6 SD',
-    //       asrama: 'putri 1',
-    //     });
-    //   }
-    // }, 500);
-  });
   return (
     <View
       style={{
@@ -112,16 +98,7 @@ export default ScannerScreen = (Props) => {
           paddingHorizontal: 42,
           alignItems: 'center',
         }}>
-        <View
-          style={{
-            height: 5,
-            width: '15%',
-            borderRadius: 5,
-            backgroundColor: '#D1D5DB',
-            marginTop: 5,
-            marginBottom: 20,
-          }}
-        />
+        <View style={styles.line} />
         <Text style={{color: '#52525B', marginBottom: 10}}>
           Atau input ID siswa manual
         </Text>
@@ -130,32 +107,34 @@ export default ScannerScreen = (Props) => {
           setValue={() => setInput}
           textStyle={{textAlign: 'center'}}
         />
-        {/* <View
-          style={{
-            borderColor: '#A1A1AA',
-            borderWidth: 1,
-            borderRadius: 8,
-            height: 47,
-            width: '100%',
-          }}
-        /> */}
-        <TouchableOpacity
+        <MyButton
           onPress={() => {
             navigation.navigate('MenuScreen');
           }}
           style={{
-            backgroundColor: '#10B981',
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 13,
-            marginTop: 10,
-            marginBottom: 40,
-            borderRadius: 8,
-          }}>
-          <Text style={{color: '#fff'}}>Cari Siswa</Text>
-        </TouchableOpacity>
+            container:{
+              marginTop: 10,
+              marginBottom: 40,
+              paddingVertical: 13,
+            },
+            title:{ 
+              fontSize: 14
+            }
+          }}
+          title="Cari Siswa"
+        />
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  line: {
+    height: 5,
+    width: '15%',
+    borderRadius: 5,
+    backgroundColor: '#D1D5DB',
+    marginTop: 5,
+    marginBottom: 20,
+  },
+});
