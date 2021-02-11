@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import QRCodeScanner from 'react-native-qrcode-scanner';
 import {
   Text,
   View,
@@ -23,6 +23,7 @@ const ViewMask = () => {
 
   return (
     <Svg
+      fill="rgba(0, 0, 0, 0)"
       height="100%"
       width="100%"
       viewBox={`0 0 ${windowWidth} ${windowHeight}`}>
@@ -60,10 +61,53 @@ const ViewMask = () => {
         y="0"
         height="100%"
         width="100%"
-        fill="rgba(0, 0, 0, 1)"
+        fill="rgba(0, 0, 0, 0)"
         mask="url(#mask)"
       />
     </Svg>
+  );
+};
+
+const BottomContent = (Props) => {
+  const {input, setInput} = Props;
+  return (
+    <View
+      style={{
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        width: '100%',
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: '#fff',
+        paddingHorizontal: 42,
+        alignItems: 'center',
+      }}>
+      <View style={styles.line} />
+      <Text style={{color: '#52525B', marginBottom: 10}}>
+        Atau input ID siswa manual
+      </Text>
+      <InputText
+        value={input}
+        setValue={() => setInput}
+        textStyle={{textAlign: 'center'}}
+      />
+      <MyButton
+        onPress={() => {
+          navigation.navigate('MenuScreen');
+        }}
+        style={{
+          container: {
+            marginTop: 10,
+            marginBottom: 40,
+            paddingVertical: 13,
+          },
+          title: {
+            fontSize: 14,
+          },
+        }}
+        title="Cari Siswa"
+      />
+    </View>
   );
 };
 
@@ -72,58 +116,27 @@ export default ScannerScreen = (Props) => {
   const [dataFound, setDataFound] = React.useState(false);
   const {route, navigation} = Props;
   let hasDataForm = route.params === undefined ? false : true;
-
+  const readQR = (e) => {
+    this.scanner.reactivate()
+    alert(e.data);
+  };
   return (
     <View
       style={{
         flex: 1,
         position: 'relative',
       }}>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(0, 255, 0, 1)',
-          width: '100%',
-        }}>
-        <ViewMask />
-      </View>
-      <View
-        style={{
-          borderTopLeftRadius: 25,
-          borderTopRightRadius: 25,
-          width: '100%',
-          position: 'absolute',
-          bottom: 0,
-          backgroundColor: '#fff',
-          paddingHorizontal: 42,
-          alignItems: 'center',
-        }}>
-        <View style={styles.line} />
-        <Text style={{color: '#52525B', marginBottom: 10}}>
-          Atau input ID siswa manual
-        </Text>
-        <InputText
-          value={input}
-          setValue={() => setInput}
-          textStyle={{textAlign: 'center'}}
-        />
-        <MyButton
-          onPress={() => {
-            navigation.navigate('MenuScreen');
-          }}
-          style={{
-            container:{
-              marginTop: 10,
-              marginBottom: 40,
-              paddingVertical: 13,
-            },
-            title:{ 
-              fontSize: 14
-            }
-          }}
-          title="Cari Siswa"
-        />
-      </View>
+      {/* <ViewMask /> */}
+      <QRCodeScanner
+        ref={(node) => {
+          this.scanner = node;
+        }}
+        onRead={readQR}
+        cameraStyle={{height: Dimensions.get('window').height}}
+        topViewStyle={{height: 0, flex: 0}}
+        bottomViewStyle={{height: 0, flex: 0}}
+      />
+      <BottomContent input={input} setInput={setInput} />
     </View>
   );
 };
