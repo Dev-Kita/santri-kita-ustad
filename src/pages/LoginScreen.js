@@ -8,17 +8,42 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import {Input} from 'react-native-elements';
 import {AuthContext} from '../components/Context';
+import {useMutation, gql} from '@apollo/client';
+
+const LOGIN_QUERY = gql`
+  mutation login($identifier: String!, $password: String!) {
+    login(input: {identifier: $identifier, password: $password}) {
+      jwt
+      user {
+        id
+        username
+      }
+    }
+  }
+`;
 
 const LoginScreen = ({navigate}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const setLoginToken = React.useContext(AuthContext);
 
-  const handleSubmit = (username, password) => {
-    setLoginToken('test')
+  const [login, {data,loading,}] = useMutation(LOGIN_QUERY);
+  const {loginAction} = React.useContext(AuthContext);
+
+  const handleSubmit = async (username, password) => {
+    try {
+      const {data} = await login({
+        variables: {identifier: username, password: password},
+      }); 
+      console.warn(data)
+      loginAction(data.login.jwt,data.login.id)
+    } catch (e) {
+      alert('Password salah');
+      console.warn(e);
+    }
   };
 
   return (
@@ -51,13 +76,17 @@ const LoginScreen = ({navigate}) => {
               returnKeyType="done"
             />
           </View>
-
           <TouchableOpacity
+            disabled={loading?true:false}
             onPress={() => {
               handleSubmit(username, password);
             }}
             style={styles.btnLogin}>
-            <Text style={styles.textBtnLogin}>Masuk</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ):(
+                <Text style={styles.textBtnLogin}>Masuk</Text> 
+              )}
           </TouchableOpacity>
         </View>
       </ScrollView>
