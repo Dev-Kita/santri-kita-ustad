@@ -2,21 +2,35 @@ import * as React from 'react';
 import {Text, View, FlatList} from 'react-native';
 import Item from '../components/Item';
 import HeaderSantri from '../components/HeaderSantri';
-import {MyButton} from '../components/Input'
-const DATA = [
-  {id: '1', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '2', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '3', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '4', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '5', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '6', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '7', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '8', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '9', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '10', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-];
+import {MyButton} from '../components/Input';
+import {gql, useQuery} from '@apollo/client';
+import LoadingView from './LoadingView';
+import ErrorScreen from './ErrorScreen';
+import {TanggalIndo} from '../components/Helper';
+
+const LIST_SETORAN = gql`
+  query List_Setoran($idStudent: ID!, $idLesson: ID!) {
+    student(id: $idStudent) {
+      student_aktivities(where: {lesson: $idLesson}) {
+        id
+        siswa_title
+        keterangan
+        tanggal
+      }
+    }
+  }
+`;
 
 export default SetoranScreen = ({route, navigation}) => {
+  const {loading, data, error} = useQuery(LIST_SETORAN, {
+    variables: {
+      idStudent: route.params.student.id,
+      idLesson: route.params.setoranId,
+    },
+    poolInterval:500
+  });
+  if (loading) return <LoadingView />;
+  if (error) return <ErrorScreen />;
   const HeaderListSantri = () => {
     return (
       <View
@@ -27,17 +41,17 @@ export default SetoranScreen = ({route, navigation}) => {
           alignItems: 'center',
         }}>
         <HeaderSantri
-          name={route.params.name}
-          class={route.params.class}
-          asrama={route.params.asrama}
+          name={route.params.student.name}
+          class={route.params.student.class}
+          asrama={route.params.student.asrama}
         />
         <Text style={{marginBottom: 15, fontSize: 16, color: '#52525B'}}>
-          Membaca Alquran
+          {route.params.namaSetoran}
         </Text>
         <MyButton
           title="Tambah data"
           onPress={() => {
-            navigation.navigate('SetoranFormScreen');
+            navigation.navigate('SetoranFormScreen', {...route.params});
           }}
         />
         <Text
@@ -52,16 +66,24 @@ export default SetoranScreen = ({route, navigation}) => {
       </View>
     );
   };
-  const renderItem = ({item}) => (
-    <Item title={item.title} date={item.date} style={{marginVertical: 7}} />
-  );
+  const renderItem = ({item}) => {
+    const tanggal = TanggalIndo(item.tanggal);
+    return(
+    <Item
+      title={item.siswa_title}
+      date={tanggal}
+      description={item.keterangan}
+      style={{marginVertical: 7}}
+    />
+  )};
   return (
     <View style={{flex: 1, backgroundColor: '#fff', paddingHorizontal: 25}}>
       <FlatList
-        data={DATA}
+        data={data.student.student_aktivities}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={(Props) => <HeaderListSantri />}
+        ListEmptyComponent={()=><Item title="Tidak ada data" wrapper={{ alignItems: 'center',justifyContent:'center' }}/>}
         showsVerticalScrollIndicator={false}
         ListHeaderComponentStyle={{
           justifyContent: 'center',

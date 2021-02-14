@@ -22,6 +22,7 @@ export default Item = (Props) => {
           paddingVertical: 16,
           paddingHorizontal: 25,
           borderRadius: 7,
+          ...Props.wrapper
         }}>
         <Text style={{fontSize: 12, color: '#71717A'}}>{Props.title}</Text>
         <Text style={{fontSize: 10, color: '#A1A1AA'}}>{Props.date}</Text>

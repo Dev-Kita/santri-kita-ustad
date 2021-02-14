@@ -6,70 +6,29 @@ import {
   TouchableOpacity,
   Dimensions,
   StyleSheet,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {InputText, MyButton} from '../components/Input';
 
-import {Svg, Defs, Rect, Mask} from 'react-native-svg';
+import {useLazyQuery, gql} from '@apollo/client';
 
-const ViewMask = () => {
-  const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
-  const maskerHeight = 270;
-  const maskerWidth = 270;
-  const borderHeight = 240;
-  const borderWidth = 240;
-  const marginY = 140;
-  const rounded = 10;
-
-  return (
-    <Svg
-      fill="rgba(0, 0, 0, 0)"
-      height="100%"
-      width="100%"
-      viewBox={`0 0 ${windowWidth} ${windowHeight}`}>
-      <Defs>
-        <Mask id="mask" x="0" y="0" height="100%" width="100%">
-          {/* under white is mask */}
-          <Rect height="100%" width="100%" fill="#fff" />
-          <Rect
-            x={windowWidth / 2 - maskerWidth / 2}
-            y={marginY}
-            height={maskerHeight}
-            width={maskerWidth}
-            rx={rounded}
-            fill="black"
-          />
-        </Mask>
-      </Defs>
-
-      <Rect
-        x={windowWidth / 2 - borderWidth / 2}
-        y={marginY + (maskerHeight - borderHeight) / 2}
-        width={borderWidth}
-        height={borderHeight}
-        rx={rounded}
-        stroke="white"
-        strokeWidth="6"
-        // strokeMiterlimit="2.09003"
-        // strokeLinecap="round"
-        // strokeLinejoin="round"
-        // strokeDasharray="70 70"
-      />
-
-      <Rect
-        x="0"
-        y="0"
-        height="100%"
-        width="100%"
-        fill="rgba(0, 0, 0, 0)"
-        mask="url(#mask)"
-      />
-    </Svg>
-  );
-};
+const DATA_SISWA = gql`
+  query Data_Siswa($id: ID!) {
+    student(id: $id) {
+      id
+      nama
+      kamar
+      kelas {
+        id
+        kelas
+      }
+    }
+  }
+`;
 
 const BottomContent = (Props) => {
-  const {input, setInput} = Props;
+  const {input, setInput, onPress} = Props;
   return (
     <View
       style={{
@@ -83,18 +42,17 @@ const BottomContent = (Props) => {
         alignItems: 'center',
       }}>
       <View style={styles.line} />
-      <Text style={{color: '#52525B', marginBottom: 10}}>
+      <Text style={{color: '#52525B', marginBottom: 15}}>
         Atau input ID siswa manual
       </Text>
       <InputText
         value={input}
-        setValue={() => setInput}
+        setValue={setInput}
+        labelStyle={{display: 'none'}}
         textStyle={{textAlign: 'center'}}
       />
       <MyButton
-        onPress={() => {
-          navigation.navigate('MenuScreen');
-        }}
+        onPress={onPress}
         style={{
           container: {
             marginTop: 10,
@@ -112,31 +70,91 @@ const BottomContent = (Props) => {
 };
 
 export default ScannerScreen = (Props) => {
+  console.warn(Props.route.params);
   const [input, setInput] = React.useState();
-  const [dataFound, setDataFound] = React.useState(false);
+  const [scannerResult, setScannerResult] = React.useState();
   const {route, navigation} = Props;
-  let hasDataForm = route.params === undefined ? false : true;
+  const [loadData, {called, loading, data}] = useLazyQuery(DATA_SISWA, {
+    variables: {id: scannerResult},
+  });
+
+  console.warn(route.params);
+  const camera = React.useRef();
+
   const readQR = (e) => {
-    this.scanner.reactivate()
-    alert(e.data);
+    setScannerResult(e.data);
+    loadData();
   };
+
+  if (!loading && called) {
+    if (data !== undefined) {
+      if (data.student !== null) {
+        const {
+          id,
+          nama,
+          kamar,
+          kelas: {kelas},
+        } = data.student;
+
+        if (route.params !== undefined) {
+          if (route.params.hasOwnProperty('dataForm')) {
+            navigation.replace(route.params.dataForm.toRoute, {
+              student: {
+                id: id,
+                name: nama,
+                class: kelas,
+                asrama: kamar,
+              },
+              dataForm: route.params.dataForm,
+            });
+          }
+        } else {
+          navigation.replace('MenuScreen', {
+            student: {
+              id: id,
+              name: nama,
+              class: kelas,
+              asrama: kamar,
+            },
+          });
+        }
+      }
+    }
+    camera.current.reactivate();
+  }
+
   return (
     <View
       style={{
         flex: 1,
         position: 'relative',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}>
-      {/* <ViewMask /> */}
+      {called && loading ? (
+        <ActivityIndicator
+          style={{position: 'absolute', zIndex: 10}}
+          size="large"
+          color="#fff"
+        />
+      ) : null}
       <QRCodeScanner
         ref={(node) => {
-          this.scanner = node;
+          camera.current = node;
         }}
         onRead={readQR}
         cameraStyle={{height: Dimensions.get('window').height}}
         topViewStyle={{height: 0, flex: 0}}
         bottomViewStyle={{height: 0, flex: 0}}
       />
-      <BottomContent input={input} setInput={setInput} />
+      <BottomContent
+        onPress={() => {
+          setScannerResult(input);
+          loadData();
+        }}
+        input={input}
+        setInput={setInput}
+      />
     </View>
   );
 };

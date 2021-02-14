@@ -1,19 +1,37 @@
 import * as React from 'react';
-import {Text, View, FlatList} from 'react-native';
+import {ActivityIndicator, Text, View, FlatList} from 'react-native';
 import Item from '../components/Item';
+import {useQuery, gql} from '@apollo/client';
+import ErrorScreen from './ErrorScreen';
+import LoadingView from './LoadingView';
+import {DataUstadContext} from '../components/Context';
+import {TanggalIndo} from '../components/Helper';
 
-const DATA = [
-  {id: '1', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '2', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '3', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '4', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '5', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '6', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '7', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '8', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '9', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-  {id: '10', title: 'Mengajar ngaji', date: '18:00 18/02/2021'},
-];
+const GET_ACTIVITY = gql`
+  query Get_Activity($id: ID!) {
+    user(id: $id) {
+      teacher {
+        student_aktivities {
+          id
+          guru_title
+          tanggal
+          keterangan
+        }
+      }
+    }
+  }
+`;
+
+const GET_DATA_USTAD = gql`
+  query Get_Data_Ustad($id: ID!) {
+    user(id: $id) {
+      teacher {
+        id
+        nama
+      }
+    }
+  }
+`;
 
 const ListHeaderUstad = () => {
   return (
@@ -30,9 +48,38 @@ const ListHeaderUstad = () => {
   );
 };
 
-export default HomeTab = ({navigation}) => {
+export default HomeTab = ({route, navigation}) => {
+  const id = route.params.ustadID;
+  const {dataUstad, setDataUstad} = React.useContext(DataUstadContext);
+  const {data, loading, error} = useQuery(GET_ACTIVITY, {
+    variables: {id: id},
+    pollInterval: 500,
+  });
+
+  // console.warn();
+  const ustadState = useQuery(GET_DATA_USTAD, {
+    variables: {id: id},
+    onCompleted(dt) {
+      setDataUstad(dt.user.teacher);
+    },
+  });
+
+  if (loading) {
+    return <LoadingView />;
+  }
+
+  if (error) {
+    console.warn(error);
+    return <ErrorScreen />;
+  }
+
   const renderItem = ({item}) => (
-    <Item title={item.title} date={item.date} style={{marginTop: 7}} canOpen={false}/>
+    <Item
+      title={item.guru_title}
+      date={TanggalIndo(item.tanggal)}
+      description={item.keterangan}
+      style={{marginVertical: 7}}
+    />
   );
   return (
     <View
@@ -42,11 +89,17 @@ export default HomeTab = ({navigation}) => {
         paddingHorizontal: 21,
       }}>
       <FlatList
-        data={DATA}
+        data={data.user.teacher.student_aktivities}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={(Props) => <ListHeaderUstad />}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <Item
+            title="Tidak ada data"
+            wrapper={{alignItems: 'center', justifyContent: 'center'}}
+          />
+        )}
         ListHeaderComponentStyle={{
           justifyContent: 'center',
           alignItems: 'center',

@@ -6,40 +6,62 @@ import {
   InputMultiLine,
   MyButton,
 } from '../components/Input';
+import {useMutation, gql} from '@apollo/client';
+import {TanggalLuar} from '../components/Helper';
+
+const INSERT_PELANGGARAN = gql`
+  mutation INSERT_PELANGGARAN(
+    $id: ID
+    $pelanggaran: String
+    $tanggal: Date
+    $keterangan: String
+  ) {
+    createViolation(
+      input: {
+        data: {
+          student: $id
+          pelanggaran: $pelanggaran
+          tanggal: $tanggal
+          keterangan: $keterangan
+        }
+      }
+    ) {
+      violation {
+        id
+        keterangan
+        tanggal
+      }
+    }
+  }
+`;
 
 export default PelanggaranFormScreen = ({route, navigation}) => {
-  route.params =
-    route.params === undefined
-      ? {name: 'Rizki', class: 'Kelas 6', asrama: 'Asrama 1'}
-      : route.params;
+  const [submitForm, {loading, data, error}] = useMutation(INSERT_PELANGGARAN);
+
   const [FlashSaved, setFlashSaved] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
 
   const [isSantriLain, setIsSantriLain] = React.useState(false);
   const [flashSantriLain, setFlashSantriLain] = React.useState(true);
 
-  const [inputError, setInputError] = React.useState([
-    false,
-    false,
-    false,
-  ]);
+  const [inputError, setInputError] = React.useState([false, false, false]);
 
   const [title, setTitle] = React.useState();
   const [date, setDate] = React.useState(new Date());
   const [description, setDescription] = React.useState();
 
   React.useEffect(() => {
-    if (route.params !== undefined) {
+    if (route.params.dataForm !== undefined) {
       if (route.params.hasOwnProperty('dataForm')) {
-        const dataForm = JSON.parse(route.params.dataForm);
+        const {dataForm} = route.params;
         setIsSantriLain(true);
         setTitle(dataForm.title);
         setDate(new Date(dataForm.date));
         setDescription(dataForm.description);
       }
     }
-  }, [route]);
-
+  }, [route.params]);
+ 
   const isEmpty = (...items) => {
     const result = items.map((item, index) => {
       if (item === undefined || item === '') {
@@ -60,6 +82,19 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
     setTimeout(() => {
       setFlashSantriLain(false);
     }, 500);
+  };
+
+  const handleSubmit = async () => {
+    const {data} = await submitForm({
+      variables: {
+        id: 5,
+        pelanggaran: title,
+        tanggal: TanggalLuar(date),
+        keterangan: description,
+      },
+    });
+    setSaved(true);
+    setFlashSaved(true);
   };
 
   return (
@@ -87,7 +122,11 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
           style={{marginVertical: 10}}
         />
       ) : null}
-      <HeaderSantri name={route.params.name} class={route.params.class} asrama={route.params.asrama}/>
+      <HeaderSantri
+        name={route.params.student.name}
+        class={route.params.student.class}
+        asrama={route.params.student.asrama}
+      />
       <Text style={{color: '#52525B', fontSize: 16, marginBottom: 15}}>
         Tambah Data Pelanggaran
       </Text>
@@ -98,7 +137,7 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
         title="Pelanggaran :"
         style={{marginBottom: 15}}
       />
-      
+
       <InputDate
         value={date}
         setValue={setDate}
@@ -110,7 +149,7 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
       <InputMultiLine
         value={description}
         setValue={setDescription}
-        isError={false}
+        isError={inputError[2]}
         title="Keterangan : "
         style={{marginBottom: 15}}
       />
@@ -125,15 +164,13 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
           <MyButton
             title="Simpan"
             style={{container: {flex: 1, marginHorizontal: 10}}}
+            disabled={loading ? true : false}
             onPress={() => {
-              const valid = isEmpty(title, date);
+              const valid = isEmpty(title, date, description);
               const canSubmit = valid.every((e) => !e);
               setInputError(valid);
               if (canSubmit) {
-                setTimeout(() => {
-                  setSaved(true);
-                  setFlashSaved(true);
-                }, 500);
+                handleSubmit();
               }
             }}
           />
@@ -152,12 +189,13 @@ export default PelanggaranFormScreen = ({route, navigation}) => {
                 },
               }}
               onPress={() => {
-                const dataForm = JSON.stringify({
+                const dataForm = {
+                  toRoute:'PelanggaranFormScreen',
                   title,
                   date,
                   description,
-                });
-                navigation.navigate('ScannerScreen', {dataForm});
+                };
+                navigation.navigate('ScannerScreen', {...route.params,dataForm});
                 setSaved(false);
                 setIsSantriLain(true);
                 setFlashSantriLain(false);

@@ -6,7 +6,7 @@ import HeaderSantri from '../components/HeaderSantri';
 
 export default MenuScreen = ({route, navigation}) => {
   route.params =
-    route.params === undefined
+    route.params.student === undefined
       ? {name: 'Rizki', class: 'Kelas 6', asrama: 'Asrama 1'}
       : route.params;
   const [isFlash, setIsflash] = React.useState(true);
@@ -26,7 +26,7 @@ export default MenuScreen = ({route, navigation}) => {
       {isFlash ? (
         <FlashStatus onPress={closeFlash} style={{marginVertical: 10}} />
       ) : null}
-      <HeaderSantri name={route.params.name || ''} class={2} asrama="sdds" />
+      <HeaderSantri name={route.params.student.name} class={route.params.student.class} asrama={route.params.student.asrama} />
       <Menu
         title="Buku Setoran"
         callback={() => {

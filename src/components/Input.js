@@ -37,7 +37,7 @@ export const InputText = (Props) => {
   
   return (
     <View style={{width: '100%', ...Props.style}}>
-      <Text style={{fontSize: 14, color: '#52525B', marginBottom: 5}}>
+      <Text style={{fontSize: 14, color: '#52525B', marginBottom: 5,...Props.labelStyle}}>
         {Props.title}
       </Text>
       <TextInput

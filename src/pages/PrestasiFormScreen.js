@@ -6,40 +6,70 @@ import {
   InputMultiLine,
   MyButton,
 } from '../components/Input';
+import {useMutation,gql} from '@apollo/client';
+
+const INSERT_PRESTASI = gql`
+mutation INSERT_PRESTASI(
+  $id:ID!,
+  $kegiatan:String,
+  $juara:String,
+  $lingkup:String
+  $tahun:Int
+  $keterangan:String
+){
+  createAchievement(input:{
+    data:{
+      student:$id
+      kegiatan_lomba:$kegiatan
+      prestasi:$juara
+      lingkup:$lingkup
+      tahun:$tahun
+      keterangan:$keterangan
+    }
+  }){
+    achievement{
+      id
+    }
+  }
+}
+`
 
 export default PrestasiFormScreen = ({route, navigation}) => {
-  route.params =
-    route.params === undefined
-      ? {name: 'Rizki', class: 'Kelas 6', asrama: 'Asrama 1'}
-      : route.params;
   const [FlashSaved, setFlashSaved] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
 
   const [isSantriLain, setIsSantriLain] = React.useState(false);
   const [flashSantriLain, setFlashSantriLain] = React.useState(true);
 
+  const [submitForm,{data,loading,error}] = useMutation(INSERT_PRESTASI)
+
   const [inputError, setInputError] = React.useState([
+    false,
+    false,
+    false,
     false,
     false,
   ]);
 
   const [title, setTitle] = React.useState();
-  const [date, setDate] = React.useState(new Date());
-  const [time, setTime] = React.useState(new Date());
+  const [champion, setChampion] = React.useState();
+  const [scope, setScope] = React.useState();
+  const [date, setDate] = React.useState();
   const [description, setDescription] = React.useState();
 
   React.useEffect(() => {
-    if (route.params !== undefined) {
+    if (route.params.dataForm !== undefined) {
       if (route.params.hasOwnProperty('dataForm')) {
-        const dataForm = JSON.parse(route.params.dataForm);
+        const {dataForm} = route.params;
         setIsSantriLain(true);
         setTitle(dataForm.title);
-        setDate(new Date(dataForm.date));
-        setTime(new Date(dataForm.time));
+        setChampion(dataForm.champion);
+        setScope(dataForm.scope);
+        setDate(dataForm.date);
         setDescription(dataForm.description);
       }
     }
-  }, [route]);
+  }, [route.params]);
 
   const isEmpty = (...items) => {
     const result = items.map((item, index) => {
@@ -62,6 +92,27 @@ export default PrestasiFormScreen = ({route, navigation}) => {
       setFlashSantriLain(false);
     }, 500);
   };
+
+  const handleSubmit = async () => {
+    try{
+      const {data} = await submitForm({
+        variables:{
+          id:route.params.student.id,
+          kegiatan:title,
+          juara:champion,
+          lingkup:scope,
+          tahun:Number(date),
+          keterangan:description     
+        }
+      })
+      setSaved(true);
+      setFlashSaved(true);
+
+    }catch(e){
+      console.log(e);
+      alert('Maaf terjadi error');
+    }
+  }
 
   return (
     <View
@@ -88,7 +139,11 @@ export default PrestasiFormScreen = ({route, navigation}) => {
           style={{marginVertical: 10}}
         />
       ) : null}
-      <HeaderSantri name={route.params.name} class={route.params.class} asrama={route.params.asrama}/>
+      <HeaderSantri
+        name={route.params.student.name}
+        class={route.params.student.class}
+        asrama={route.params.student.asrama}
+      />
       <Text style={{color: '#52525B', fontSize: 16, marginBottom: 15}}>
         Tambah Data Prestasi
       </Text>
@@ -100,17 +155,31 @@ export default PrestasiFormScreen = ({route, navigation}) => {
         style={{marginBottom: 15}}
       />
       <InputText
+        value={champion}
+        setValue={setChampion}
+        isError={inputError[1]}
+        title="Juara / Peringkat :"
+        style={{marginBottom: 15}}
+      />
+      <InputText
+        value={scope}
+        setValue={setScope}
+        isError={inputError[2]}
+        title="Lingkup :"
+        style={{marginBottom: 15}}
+      />
+      <InputText
         value={date}
         setValue={setDate}
         title="Tahun :"
-        isError={inputError[1]}
+        isError={inputError[3]}
         keyboardType="number-pad"
         style={{marginBottom: 15}}
       />
       <InputMultiLine
         value={description}
         setValue={setDescription}
-        isError={inputError[2]}
+        isError={inputError[4]}
         title="Keterangan : "
         style={{marginBottom: 15}}
       />
@@ -124,16 +193,14 @@ export default PrestasiFormScreen = ({route, navigation}) => {
         {!saved ? (
           <MyButton
             title="Simpan"
+            disabled={loading ? true : false}
             style={{container: {flex: 1, marginHorizontal: 10}}}
             onPress={() => {
-              const valid = isEmpty(title, date);
+              const valid = isEmpty(title, champion, scope, date, description);
               const canSubmit = valid.every((e) => !e);
               setInputError(valid);
               if (canSubmit) {
-                setTimeout(() => {
-                  setSaved(true);
-                  setFlashSaved(true);
-                }, 500);
+                handleSubmit();
               }
             }}
           />
@@ -152,11 +219,14 @@ export default PrestasiFormScreen = ({route, navigation}) => {
                 },
               }}
               onPress={() => {
-                const dataForm = JSON.stringify({
+                const dataForm = {
+                  toRoute : 'PrestasiFormScreen',
                   title,
+                  champion,
+                  scope,
                   date,
                   description,
-                });
+                };
                 navigation.navigate('ScannerScreen', {dataForm});
                 setSaved(false);
                 setIsSantriLain(true);
@@ -168,8 +238,9 @@ export default PrestasiFormScreen = ({route, navigation}) => {
               style={{container: {flex: 1, marginHorizontal: 10}}}
               onPress={() => {
                 setTitle('');
-                setDate(new Date());
-                setTime(new Date());
+                setChampion('');
+                setScope('');
+                setDate('');
                 setDescription('');
                 navigation.navigate('MainScreen');
               }}

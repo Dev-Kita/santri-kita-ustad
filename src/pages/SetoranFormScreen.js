@@ -6,42 +6,66 @@ import {
   InputMultiLine,
   MyButton,
 } from '../components/Input';
+import {gql, useMutation} from '@apollo/client';
+
+const INSERT_SETORAN = gql`
+  mutation Insert_Setoran(
+    $siswa_id: [ID]
+    $ustad_id: ID
+    $lesson_id: ID
+    $siswa_title: String
+    $guru_title: String
+    $tanggal: DateTime
+    $keterangan: String
+  ) {
+    createStudentAktivity(
+      input: {
+        data: {
+          students: $siswa_id
+          teacher: $ustad_id
+          lesson: $lesson_id
+          siswa_title: $siswa_title
+          guru_title: $guru_title
+          tanggal: $tanggal
+          keterangan: $keterangan
+          
+        }
+      }
+    ) {
+      studentAktivity {
+        id
+      }
+    }
+  }
+`;
 
 export default SetoranFormScreen = ({route, navigation}) => {
-  route.params =
-    route.params === undefined
-      ? {name: 'Rizki', class: 'Kelas 6', asrama: 'Asrama 1'}
-      : route.params;
+  console.warn(route.params);
+  const [submitForm, {data,loading, error}] = useMutation(INSERT_SETORAN);
+
   const [FlashSaved, setFlashSaved] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
 
   const [isSantriLain, setIsSantriLain] = React.useState(false);
   const [flashSantriLain, setFlashSantriLain] = React.useState(true);
 
-  const [inputError, setInputError] = React.useState([
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [inputError, setInputError] = React.useState([false, false]);
 
   const [title, setTitle] = React.useState();
   const [date, setDate] = React.useState(new Date());
-  const [time, setTime] = React.useState(new Date());
   const [description, setDescription] = React.useState();
 
   React.useEffect(() => {
     if (route.params !== undefined) {
       if (route.params.hasOwnProperty('dataForm')) {
-        const dataForm = JSON.parse(route.params.dataForm);
+        const {dataForm} = route.params;
         setIsSantriLain(true);
         setTitle(dataForm.title);
         setDate(new Date(dataForm.date));
-        setTime(new Date(dataForm.time));
         setDescription(dataForm.description);
       }
     }
-  }, [route]);
+  }, [route.params]);
 
   const isEmpty = (...items) => {
     const result = items.map((item, index) => {
@@ -51,6 +75,29 @@ export default SetoranFormScreen = ({route, navigation}) => {
       return false;
     });
     return result;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const guru_title = `Menerima setoran dari ${route.params.student.name}`;
+      const {data} = await submitForm({
+        variables: {
+          siswa_id: [route.params.student.id],
+          ustad_id: route.params.ustadID,
+          lesson_id: route.params.setoranId,
+          siswa_title: title,
+          guru_title: guru_title,
+          tanggal: date,
+          keterangan: description,
+        },
+      });
+      console.log(data);
+      setSaved(true);
+      setFlashSaved(true);
+    } catch (e) {
+      console.warn(e);
+      alert('Maaf terjadi error');
+    }
   };
 
   const closeFlashSaved = () => {
@@ -90,9 +137,13 @@ export default SetoranFormScreen = ({route, navigation}) => {
           style={{marginVertical: 10}}
         />
       ) : null}
-      <HeaderSantri name={route.params.name} class={route.params.class} asrama={route.params.asrama}/>
+      <HeaderSantri
+        name={route.params.student.name}
+        class={route.params.student.class}
+        asrama={route.params.student.asrama}
+      />
       <Text style={{color: '#52525B', fontSize: 16, marginBottom: 15}}>
-        Tambah Data - Membaca Al-Qur’an
+        Tambah Data - {route.params.namaSetoran}
       </Text>
       <InputText
         value={title}
@@ -102,18 +153,10 @@ export default SetoranFormScreen = ({route, navigation}) => {
         style={{marginBottom: 15}}
       />
       <InputDate
-        value={time}
-        setValue={setTime}
-        title="Jam :"
-        isError={inputError[1]}
-        mode="time"
-        style={{marginBottom: 15}}
-      />
-      <InputDate
         value={date}
         setValue={setDate}
         title="Tanggal :"
-        isError={inputError[2]}
+        isError={inputError[1]}
         mode="date"
         style={{marginBottom: 15}}
       />
@@ -135,15 +178,13 @@ export default SetoranFormScreen = ({route, navigation}) => {
           <MyButton
             title="Simpan"
             style={{container: {flex: 1, marginHorizontal: 10}}}
+            disabled={loading ? true : false}
             onPress={() => {
-              const valid = isEmpty(title, time, date);
+              const valid = isEmpty(title, date);
               const canSubmit = valid.every((e) => !e);
               setInputError(valid);
               if (canSubmit) {
-                setTimeout(() => {
-                  setSaved(true);
-                  setFlashSaved(true);
-                }, 500);
+                handleSubmit();
               }
             }}
           />
@@ -162,13 +203,13 @@ export default SetoranFormScreen = ({route, navigation}) => {
                 },
               }}
               onPress={() => {
-                const dataForm = JSON.stringify({
+                const dataForm = {
+                  toRoute:'SetoranFormScreen',
                   title,
-                  time,
                   date,
                   description,
-                });
-                navigation.navigate('ScannerScreen', {dataForm});
+                };
+                navigation.navigate('ScannerScreen', {...route.params,dataForm});
                 setSaved(false);
                 setIsSantriLain(true);
                 setFlashSantriLain(false);
@@ -180,7 +221,6 @@ export default SetoranFormScreen = ({route, navigation}) => {
               onPress={() => {
                 setTitle('');
                 setDate(new Date());
-                setTime(new Date());
                 setDescription('');
                 navigation.navigate('MainScreen');
               }}

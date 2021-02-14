@@ -26,7 +26,7 @@ export default MyHeader = (Props) => {
           }}>
           Santri Kita
         </Text>
-        <Text style={{fontSize: 12, color: '#71717A'}}>Ustad bambang</Text>
+        <Text style={{fontSize: 12, color: '#71717A'}}>{ Props.ustadName }</Text>
       </View>
 
       <TouchableOpacity

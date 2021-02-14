@@ -5,7 +5,7 @@ import HomeTab from './HomeTab';
 import ProfileTab from './ProfileTab';
 import MyTab from '../components/MyTab';
 const Tab = createBottomTabNavigator();
-export default MainTab = () => {
+export default MainTab = ({route}) => {
   return (
     <Tab.Navigator
       initialRouteName="Main"
@@ -16,6 +16,7 @@ export default MainTab = () => {
       <Tab.Screen
         name="Main"
         component={HomeTab}
+        initialParams={{ ...route.params }}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({color, size}) => (
