@@ -14,7 +14,7 @@ import PelanggaranScreen from './pages/PelanggaranScreen';
 import PelanggaranFormScreen from './pages/PelanggaranFormScreen';
 import SplashScreen from './pages/SplashScreen';
 import LoginScreen from './pages/LoginScreen';
-import {AuthContext,DataUstadContext} from './components/Context';
+import {AuthContext, DataUstadContext} from './components/Context';
 import {
   ApolloProvider,
   ApolloClient,
@@ -27,7 +27,7 @@ import {useLazyQuery, gql} from '@apollo/client';
 
 // endpoint api
 const httpLink = createHttpLink({
-  uri: `https://santrikita-api.herokuapp.com/graphql`,
+  uri: 'https://santrikita-api.herokuapp.com/graphql',
 });
 
 const authLink = setContext(async (_, {headers}) => {
@@ -60,9 +60,12 @@ const MainStack = createStackNavigator();
 const MainScreen = () => {
   const [userToken, setUserToken] = React.useState();
   const [ustadID, setUstadID] = React.useState(); // user id
-  const [dataUstad,setDataUstad] = React.useState({nama:'......................',id:''});
+  const [dataUstad, setDataUstad] = React.useState({
+    nama: '......................',
+    id: '',
+  });
   const [isLoading, setIsLoading] = React.useState(true);
-  console.log(dataUstad);
+
   const authActions = React.useMemo(() => ({
     loginAction: async (token, id) => {
       try {
@@ -97,10 +100,10 @@ const MainScreen = () => {
     },
   }));
 
-  const dataUstadActions = React.useMemo(()=>({
+  const dataUstadActions = React.useMemo(() => ({
     dataUstad,
-    setDataUstad
-  }))
+    setDataUstad,
+  }));
   React.useEffect(() => {
     setTimeout(authActions.checkToken, 3000);
   });

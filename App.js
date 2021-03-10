@@ -1,5 +1,4 @@
 import React from 'react';
-import {View,Text} from 'react-native'
 import Router from './src/Router';
 import {
   ApolloProvider,
@@ -33,10 +32,9 @@ const client = new ApolloClient({
 });
 
 export default function App() {
-
-  return (    
-      <ApolloProvider client={client}>
-        <Router />
-      </ApolloProvider>
+  return (
+    <ApolloProvider client={client}>
+      <Router />
+    </ApolloProvider>
   );
 }

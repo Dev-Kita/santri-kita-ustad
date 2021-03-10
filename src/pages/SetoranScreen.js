@@ -11,7 +11,7 @@ import {TanggalIndo} from '../components/Helper';
 const LIST_SETORAN = gql`
   query List_Setoran($idStudent: ID!, $idLesson: ID!) {
     student(id: $idStudent) {
-      student_aktivities(where: {lesson: $idLesson}) {
+      student_aktivities(where: {lesson: $idLesson},sort:"tanggal:DESC") {
         id
         siswa_title
         keterangan
@@ -32,6 +32,7 @@ export default SetoranScreen = ({route, navigation}) => {
   if (loading) return <LoadingView />;
   if (error) return <ErrorScreen />;
   const HeaderListSantri = () => {
+    console.warn(route.params)
     return (
       <View
         style={{

@@ -11,7 +11,7 @@ const GET_ACTIVITY = gql`
   query Get_Activity($id: ID!) {
     user(id: $id) {
       teacher {
-        student_aktivities {
+        student_aktivities(sort:"tanggal:DESC") {
           id
           guru_title
           tanggal
@@ -67,7 +67,6 @@ export default HomeTab = ({route, navigation}) => {
   if (loading) {
     return <LoadingView />;
   }
-
   if (error) {
     console.warn(error);
     return <ErrorScreen />;

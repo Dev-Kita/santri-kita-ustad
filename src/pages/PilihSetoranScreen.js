@@ -15,11 +15,11 @@ query {
 `
 
 export default PilihSetoranScreen = ({route, navigation}) => { 
+  console.warn(route.params);
   const {loading,data,error} = useQuery(DATA_SETORAN,{pollInterval:500});
 
   if(loading) return <LoadingView/>
   if(error) return <ErrorScreen/>
-
   const renderItem = ({item}) => (
     <Menu
       title={item.nama}

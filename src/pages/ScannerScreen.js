@@ -3,14 +3,11 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {
   Text,
   View,
-  TouchableOpacity,
   Dimensions,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import {InputText, MyButton} from '../components/Input';
-
 import {useLazyQuery, gql} from '@apollo/client';
 
 const DATA_SISWA = gql`
@@ -50,6 +47,7 @@ const BottomContent = (Props) => {
         setValue={setInput}
         labelStyle={{display: 'none'}}
         textStyle={{textAlign: 'center'}}
+        isError={Props.isError}
       />
       <MyButton
         onPress={onPress}
@@ -70,15 +68,14 @@ const BottomContent = (Props) => {
 };
 
 export default ScannerScreen = (Props) => {
-  console.warn(Props.route.params);
   const [input, setInput] = React.useState();
+  const [isError, setIsError] = React.useState(false);
   const [scannerResult, setScannerResult] = React.useState();
   const {route, navigation} = Props;
   const [loadData, {called, loading, data}] = useLazyQuery(DATA_SISWA, {
     variables: {id: scannerResult},
   });
 
-  console.warn(route.params);
   const camera = React.useRef();
 
   const readQR = (e) => {
@@ -99,13 +96,7 @@ export default ScannerScreen = (Props) => {
         if (route.params !== undefined) {
           if (route.params.hasOwnProperty('dataForm')) {
             navigation.replace(route.params.dataForm.toRoute, {
-              student: {
-                id: id,
-                name: nama,
-                class: kelas,
-                asrama: kamar,
-              },
-              dataForm: route.params.dataForm,
+              ...route.params,
             });
           }
         } else {
@@ -153,6 +144,7 @@ export default ScannerScreen = (Props) => {
           loadData();
         }}
         input={input}
+        isError={isError}
         setInput={setInput}
       />
     </View>

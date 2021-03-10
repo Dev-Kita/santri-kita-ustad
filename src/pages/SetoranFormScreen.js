@@ -91,7 +91,6 @@ export default SetoranFormScreen = ({route, navigation}) => {
           keterangan: description,
         },
       });
-      console.log(data);
       setSaved(true);
       setFlashSaved(true);
     } catch (e) {
@@ -209,6 +208,7 @@ export default SetoranFormScreen = ({route, navigation}) => {
                   date,
                   description,
                 };
+                // navigation.navigate('ScannerScreen', {...route.params,dataForm});
                 navigation.navigate('ScannerScreen', {...route.params,dataForm});
                 setSaved(false);
                 setIsSantriLain(true);
