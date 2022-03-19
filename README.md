@@ -14,3 +14,5 @@ Ditujukan untuk mengikuti Hackathon Santri Jombang
 ![Tambah Setoran](https://user-images.githubusercontent.com/39044004/159106355-2fdab59a-0741-44aa-adc7-fc1e94280084.png)
 ![Berhasil Tambah Data](https://user-images.githubusercontent.com/39044004/159106360-0b306d61-c556-494d-b258-10915901565a.png)
 
+## Figma
+https://www.figma.com/file/6LIgsZAUgysdtlZh1XMbja/Santri-Kita?node-id=526%3A375
