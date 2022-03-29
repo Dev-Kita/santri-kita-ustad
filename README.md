@@ -2,9 +2,6 @@
 Bagian dari plaform satri kita yang bertujuan untuk mendigitalisasikan pencatatan santri.
 Ditujukan untuk mengikuti Hackathon Santri Jombang 
 
-## Infrastructure
-![image](https://user-images.githubusercontent.com/39044004/159106280-0e6de622-48e0-4c08-abbc-f2964a8a7210.png)
-
 ## Screenshot
 ![Home](https://user-images.githubusercontent.com/39044004/159106313-12552103-3bc6-45db-b0ba-82dc19a60989.png)
 ![Scan](https://user-images.githubusercontent.com/39044004/159106327-859ea665-92a1-4098-8122-9eb712128f6f.png)
@@ -14,9 +11,3 @@ Ditujukan untuk mengikuti Hackathon Santri Jombang
 ![Tambah Setoran](https://user-images.githubusercontent.com/39044004/159106355-2fdab59a-0741-44aa-adc7-fc1e94280084.png)
 ![Berhasil Tambah Data](https://user-images.githubusercontent.com/39044004/159106360-0b306d61-c556-494d-b258-10915901565a.png)
 
-## Figma
-https://www.figma.com/file/6LIgsZAUgysdtlZh1XMbja/Santri-Kita?node-id=526%3A375
-
-<hr>
-
-![achievement](https://user-images.githubusercontent.com/39044004/160511865-103b9260-e3cf-4ef2-8e69-90af31e11a19.jpg)
