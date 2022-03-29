@@ -16,3 +16,7 @@ Ditujukan untuk mengikuti Hackathon Santri Jombang
 
 ## Figma
 https://www.figma.com/file/6LIgsZAUgysdtlZh1XMbja/Santri-Kita?node-id=526%3A375
+
+<hr>
+
+![achievement](https://user-images.githubusercontent.com/39044004/160511865-103b9260-e3cf-4ef2-8e69-90af31e11a19.jpg)
