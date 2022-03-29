@@ -1,6 +1,5 @@
 # Santri Kita Ustad
-Bagian dari plaform satri kita yang bertujuan untuk mendigitalisasikan pencatatan santri.
-Ditujukan untuk mengikuti Hackathon Santri Jombang 
+Bagian dari plaform satri kita, aplikasi digunakan ustad untuk mencatat kehadiran santri, kegiatan santri, pelanggaran santri.
 
 ## Screenshot
 ![Home](https://user-images.githubusercontent.com/39044004/159106313-12552103-3bc6-45db-b0ba-82dc19a60989.png)
